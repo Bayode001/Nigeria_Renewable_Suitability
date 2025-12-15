@@ -1,4 +1,4 @@
-🇳🇬 Nigeria Renewable Energy GIS Suitability Project
+Nigeria Renewable Energy GIS Suitability Project
 
 Solar • Wind • Hydro | QGIS + Python + GDAL Workflow
 
@@ -22,50 +22,9 @@ The project outputs:
 📍 Candidate Sites / Priority Zones
 
 
-📁 Project Folder Structure
-Nigeria_Renewable_Suitability/
-│
-├── data_raw/                     # Untouched source data
-│   ├── dem/
-│   ├── landcover/
-│   ├── solar_GHI/
-│   ├── wind/
-│   ├── hydro/
-│   ├── grid_network/
-│   └── roads/
-│
-├── data_processed/               # Cleaned / clipped / reprojected datasets
-│
-├── analysis/                     # Scripts, MCDA weights, QGIS models
-│   ├── solar_suitability.py
-│   ├── wind_suitability.py
-│   ├── hydro_suitability.py
-│   ├── qgis_model.model3
-│   ├── utils_raster.py
-│   └── weights.xlsx
-│
-├── outputs/                      # Final suitability results
-│   ├── solar_suitability.tif
-│   ├── wind_suitability.tif
-│   ├── hydro_suitability.tif
-│   ├── combined_suitability.tif
-│   └── site_candidates.shp
-│
-├── maps/                         # Printable layouts
-│   ├── suitability_map.pdf
-│   └── aoi_map.qgz
-│
-├── docs/                         # Documentation
-│   ├── methodology.md
-│   ├── workflow_diagram.png
-│   └── references.md
-│
-├── logs/                         # Runtime logs and metadata
-│
-├── Nigeria_Renewable.qgz         # QGIS project file
-└── README.md
 
 🗂️ Datasets Used
+
 Raster Data
 
 Digital Elevation Model (DEM)
@@ -80,6 +39,7 @@ Hydro layers (flow accumulation, slope, rivers)
 
 Roads & grid network
 
+
 Vector Data
 
 State boundaries (GADM, OCHA)
@@ -89,6 +49,7 @@ Hydrology (rivers, catchments)
 Transmission lines & substations
 
 
+
 ⚙️ Processing Workflow
 
 The GIS workflow includes:
@@ -96,6 +57,7 @@ The GIS workflow includes:
 1. Data Acquisition
 
 Download raw datasets into data_raw/.
+
 
 2. Preprocessing
 
@@ -108,6 +70,7 @@ Resample layers to common resolution
 Convert vector → raster where needed
 
 Build landmask
+
 
 3. Criteria Computation
 
@@ -135,10 +98,12 @@ Stream network extraction
 
 Head & slope constraints
 
+
 4. Multi-Criteria Decision Analysis (MCDA)
 
 Weights stored in:
 analysis/weights.xlsx
+
 
 
 5. Weighted Overlay
@@ -146,6 +111,7 @@ analysis/weights.xlsx
 Each suitability index is generated:
 
 Suitability = Σ (Weight × Normalized_Criterion)
+
 
 6. Output Generation
 
@@ -159,12 +125,19 @@ Candidate site shapefiles
 
 
 🧰 Tools & Software
+
 Component	Version	Notes
+
 QGIS	3.34+	Core GIS processing
+
 GDAL	3.10+	Raster reprojection, warp
+
 Python	3.10+	Automated processing
+
 NumPy	–	Raster math
+
 QGIS Model Builder	–	Automated pipelines
+
 
 ▶️ How to Run the Scripts
 1. Activate your environment
@@ -193,6 +166,7 @@ renewable energy zones
 GIS-ready outputs for reports and dashboards
 
 
+
 🤝 Contributing
 
 You are welcome to contribute by:
@@ -205,10 +179,13 @@ Adding Python modules
 
 Enhancing cartographic outputs
 
+
 🔒 Data Notice
 
 Large raw datasets (DEM, GHI, wind speed, etc.) are not stored in the repository.
-To avoid large file sizes and licensing issues, use your own copies inside /data_raw/.
+To avoid large file sizes and licensing issues, use your own copies inside /
+data_raw/.
+
 
 📜 License
 
