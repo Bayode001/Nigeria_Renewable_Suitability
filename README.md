@@ -100,6 +100,8 @@ Head & slope constraints
 
 
 4. Multi-Criteria Decision Analysis (MCDA)
+   
+Criteria weights were derived using a structured AHP-based MCDA framework and normalized prior to raster combination.
 
 Weights stored in:
 analysis/weights.xlsx
