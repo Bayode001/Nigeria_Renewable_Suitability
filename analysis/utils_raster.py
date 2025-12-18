@@ -1,83 +1,52 @@
-"""
-Shared raster utility functions
-Used across solar, wind, and hydro suitability workflows
-"""
-
-from pathlib import Path
-import datetime
+from osgeo import gdal
+import numpy as np
 
 
-def log_step(message: str):
-    """Print timestamped log messages"""
-    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{ts}] {message}")
+def log_step(msg):
+    print(f"🟢 {msg}")
 
 
-def ensure_exists(path):
-    """Ensure a file exists"""
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"❌ Missing file: {path}")
-    return path
-
-
-def ensure_folder(path):
-    """Create folder if it doesn't exist"""
-    path = Path(path)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-def check_file_exists(path):
+def read_raster(path):
     """
-    Check if a file exists and raise a clear error if not.
+    Read single-band raster into NumPy array.
     """
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"❌ Missing file: {path}")
-    return path
+    ds = gdal.Open(str(path))
+    if ds is None:
+        raise RuntimeError(f"Cannot open raster: {path}")
+
+    band = ds.GetRasterBand(1)
+    arr = band.ReadAsArray().astype(np.float32)
+    nodata = band.GetNoDataValue()
+
+    return ds, arr, nodata
 
 
-
-
-
-"""
-utils_raster.py
-----------------
-Reusable raster utility functions for renewable energy suitability analysis.
-
-Used by:
-- solar_suitability.py
-- wind_suitability.py
-- hydro_suitability.py
-
-Environment:
-- QGIS Python Console OR
-- Python with GDAL installed
-"""
-
-from pathlib import Path
-
-def log_step(message):
+def write_raster(
+    ref_ds,
+    out_path,
+    array,
+    nodata=-9999,
+    dtype=gdal.GDT_Float32,
+):
     """
-    Simple logger for workflow steps.
+    Write NumPy array to GeoTIFF using reference dataset.
     """
-    print(f"🟢 {message}")
+    driver = gdal.GetDriverByName("GTiff")
+    out_ds = driver.Create(
+        str(out_path),
+        ref_ds.RasterXSize,
+        ref_ds.RasterYSize,
+        1,
+        dtype,
+        options=["COMPRESS=LZW"]
+    )
 
+    out_ds.SetGeoTransform(ref_ds.GetGeoTransform())
+    out_ds.SetProjection(ref_ds.GetProjection())
 
-def placeholder_raster_alignment():
-    """
-    Placeholder for raster alignment logic.
+    band = out_ds.GetRasterBand(1)
+    band.WriteArray(array)
+    band.SetNoDataValue(nodata)
 
-    Future steps:
-    - Reproject to EPSG:4326
-    - Match resolution
-    - Match extent to reference raster
-    """
-    log_step("Raster alignment placeholder – logic to be implemented")
-
-
-def placeholder_masking():
-    """
-    Placeholder for raster masking using landmask or AOI.
-    """
-    log_step("Raster masking placeholder – logic to be implemented")
+    band.FlushCache()
+    out_ds.FlushCache()
