@@ -2,6 +2,11 @@ from osgeo import gdal
 from pathlib import Path
 import numpy as np
 
+gdal.UseExceptions()
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+# C:\GIS_Renewable_Nigeria\data\processed\aligned\coregisteration_ghi\landmask_ghi_coregisteration_clean.tif
+
 
 from analysis.utils_raster import (
     read_raster,
@@ -10,29 +15,45 @@ from analysis.utils_raster import (
 )
 from analysis.weights import SOLAR_WEIGHTS
 
+def safe_norm(arr):
+    """
+    Normalize array to 0–1 safely.
+    Returns zeros if array is flat or invalid.
+    """
+    arr = arr.astype(np.float32)
+    valid = np.isfinite(arr)
+
+    if not np.any(valid):
+        return np.zeros_like(arr, dtype=np.float32)
+
+    vmin = arr[valid].min()
+    vmax = arr[valid].max()
+
+    if vmax == vmin:
+        return np.zeros_like(arr, dtype=np.float32)
+
+    out = np.zeros_like(arr, dtype=np.float32)
+    out[valid] = (arr[valid] - vmin) / (vmax - vmin)
+    return out
+
 
 def main():
     log_step("Starting Solar Suitability Analysis")
 
-    PROJECT_ROOT = Path(
-        r"C:/GIS_Renewable_Nigeria/Nigeria_Renewable_Suitability/github_repo"
+    BASE = Path(
+        r"C:/GIS_Renewable_Nigeria/data/processed/aligned/coregisteration_ghi"
     )
 
-    #BASE = PROJECT_ROOT / "data/processed/aligned"
-    BASE = PROJECT_ROOT /"C:/GIS_Renewable_Nigeria/data/processed/aligned/coregisteration_ghi"
-
-
-   
     RASTERS = {
         "ghi": BASE / "resampled_ghi_aligned_4326.tif",
-        "slope": BASE / "slope_ghi_clean_fixed.tif",
-        "landcover": BASE / "landmask_ghi_coregisteration_clean.tif",
-        "distance_to_grid": BASE / "grid_proximity_norm.tif",
-        #"distance_to_roads": BASE / "distance_to_roads.tif",
+        "slope": BASE / "slope_ghi_coregisteration.tif",
+        "landcover": BASE / "landmask_ghi_coregisteration.tif",
+        "distance_to_grid": BASE / "grid_ghi_coregisteration.tif",
     }
 
-    #MASK = BASE / "resampled_landmask_binary.tif"
-    MASK = Path(r"C:/GIS_Renewable_Nigeria/data/processed/aligned/resampled_landmask_binary_aligned.tif")
+    MASK = Path(
+        r"C:/GIS_Renewable_Nigeria/data/processed/aligned/coregisteration_ghi/landmask_ghi_coregisteration.tif"
+    )
 
     OUTPUT_DIR = PROJECT_ROOT / "outputs"
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -51,7 +72,10 @@ def main():
     _, dist_grid, _ = read_raster(RASTERS["distance_to_grid"])
     #_, dist_roads, _ = read_raster(RASTERS["distance_to_roads"])
     ds_mask = gdal.Open(str(MASK))
-    mask = ds_mask.GetRasterBand(1).ReadAsArray().astype(np.uint8)
+    mask_raw = ds_mask.GetRasterBand(1).ReadAsArray()
+
+    # Treat anything > 0 as valid land
+    mask = np.where(np.isfinite(mask_raw) & (mask_raw > 0), 1, 0).astype(np.uint8)
 
 
     # ==========================
@@ -60,11 +84,26 @@ def main():
 
     log_step("Normalizing inputs")
 
-    ghi_n = (ghi - ghi.min()) / (ghi.max() - ghi.min())
-    slope_n = 1 - (slope - slope.min()) / (slope.max() - slope.min())
-    landcover_n = landcover / landcover.max()
-    grid_n = 1 - (dist_grid / dist_grid.max())
-    #roads_n = 1 - (dist_roads / dist_roads.max())
+    ghi_n        = safe_norm(ghi)
+    slope_n      = 1 - safe_norm(slope)
+    #landcover_n  = safe_norm(landcover)
+    # Example landcover suitability mapping
+    # Adjust values to your schema
+    landcover_n = np.zeros_like(landcover, dtype=np.float32)
+
+    landcover_n[np.isin(landcover, [1, 2])] = 1.0   # barren / grassland
+    landcover_n[np.isin(landcover, [3])] = 0.6      # shrub
+    landcover_n[np.isin(landcover, [4])] = 0.2      # forest
+    landcover_n[np.isin(landcover, [5])] = 0.0      # water / urban
+
+    grid_n       = 1 - safe_norm(dist_grid)
+
+
+    print("GHI norm:", ghi_n.min(), ghi_n.max())
+    print("Slope norm:", slope_n.min(), slope_n.max())
+    print("Landcover norm:", landcover_n.min(), landcover_n.max(), np.unique(landcover_n))
+    print("Grid norm:", grid_n.min(), grid_n.max())
+
 
     # ==========================
     # WEIGHTED OVERLAY
@@ -85,9 +124,24 @@ def main():
     # ==========================
 
     log_step("Applying land mask")
-    suitability = suitability * mask
+    suitability = np.clip(suitability, 0, 1)
     suitability[mask == 0] = -9999
 
+    # ==========================
+    # FINAL NORMALIZATION
+    # ==========================
+
+    log_step("Final normalization")
+
+    valid = suitability != -9999
+    #suitability[valid] = safe_norm(suitability[valid])
+    tmp = suitability.copy()
+    tmp[tmp == -9999] = np.nan
+    tmp = safe_norm(tmp)
+    suitability[tmp == 0] = -9999
+    suitability[tmp != 0] = tmp[tmp != 0]
+
+    suitability[suitability < 1e-6] = 0
 
     # ==========================
     # WRITE OUTPUT
