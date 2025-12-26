@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 # --------------------------------------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CSV = PROJECT_ROOT / "outputs" / "hydro_zonal_statistics.csv"
-OUT_PNG = PROJECT_ROOT / "outputs" / "state_hydro_ranking.png"
+CSV = PROJECT_ROOT / "outputs_reports" / "hydro_zonal_statistics.csv"
+OUT_PNG = PROJECT_ROOT / "outputs_reports" / "state_hydro_ranking.png"
 
 # --------------------------------------------------
 # MAIN

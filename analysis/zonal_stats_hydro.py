@@ -19,7 +19,7 @@ STATES = Path(
     r"C:/GIS_Renewable_Nigeria/github_repo_clean/data/boundaries/nga_adm1_32632.shp"
 )
 
-OUTPUT_CSV = PROJECT_ROOT / "outputs" / "hydro_zonal_statistics.csv"
+OUTPUT_CSV = PROJECT_ROOT / "outputs_reports" / "hydro_zonal_statistics.csv"
 
 # --------------------------------------------------
 # CONFIG
