@@ -13,7 +13,7 @@ gdal.UseExceptions()
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-RASTER = PROJECT_ROOT / "outputs" / "hydro_suitability_classified.tif"
+RASTER = PROJECT_ROOT / "outputs" / "hydro_suitability_classified_32632.tif"
 
 STATES = Path(
     r"C:/GIS_Renewable_Nigeria/github_repo_clean/data/boundaries/nga_adm1_32632.shp"
