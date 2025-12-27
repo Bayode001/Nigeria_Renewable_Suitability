@@ -1,0 +1,16 @@
+name: gis_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - geopandas
+  - rasterio
+  - rasterstats
+  - numpy
+  - pandas
+  - matplotlib
+  - shapely
+  - fiona
+  - pyproj
+  - scipy
+  - jupyter
