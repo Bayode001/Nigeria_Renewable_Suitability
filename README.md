@@ -182,6 +182,15 @@ Adding Python modules
 Enhancing cartographic outputs
 
 
+## Reproducibility
+
+To recreate the analysis environment:
+
+```bash
+conda env create -f environment.yml
+conda activate gis_env
+
+
 🔒 Data Notice
 
 Large raw datasets (DEM, GHI, wind speed, etc.) are not stored in the repository.
