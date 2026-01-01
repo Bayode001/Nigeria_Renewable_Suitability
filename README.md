@@ -7,9 +7,13 @@ The project integrates solar, wind, and hydro suitability using QGIS, GDAL, rast
 
 🔍 Project Purpose
 
+This repository provides a spatial decision-support system to inform renewable energy planning, investment prioritization, and policy formulation in Nigeria.
+
 To create spatially accurate, data-driven suitability maps for supporting renewable energy planning in Nigeria.
 
 The project outputs:
+
+GIS-ready analytical outputs suitable for feasibility screening, strategic energy planning, and donor-funded infrastructure programmes.
 
 🌞 Solar Suitability Map
 
@@ -71,6 +75,7 @@ Convert vector → raster where needed
 
 Build landmask
 
+All spatial analysis was conducted in WGS 84 / UTM Zone 32N (EPSG:32632).
 
 3. Criteria Computation
 
@@ -100,12 +105,13 @@ Head & slope constraints
 
 
 4. Multi-Criteria Decision Analysis (MCDA)
-   
+ 
+Criteria weighting follows a structured Analytic Hierarchy Process (AHP), consistent with international best practices for infrastructure planning and energy systems analysis. 
+
 Criteria weights were derived using a structured AHP-based MCDA framework and normalized prior to raster combination.
 
 Weights stored in:
 analysis/weights.xlsx
-
 
 
 5. Weighted Overlay
@@ -189,6 +195,11 @@ To recreate the analysis environment:
 ```bash
 conda env create -f environment.yml
 conda activate gis_env
+---
+
+The environment was tested on Windows and Linux using conda-forge packages.
+
+The workflow supports auditability and independent verification, aligning with development finance and donor transparency requirements.
 
 
 🔒 Data Notice
@@ -196,6 +207,20 @@ conda activate gis_env
 Large raw datasets (DEM, GHI, wind speed, etc.) are not stored in the repository.
 To avoid large file sizes and licensing issues, use your own copies inside /
 data_raw/.
+
+
+## Documentation for Policymakers & Donors
+
+The following documents provide strategic and policy-level interpretation
+of the analysis:
+
+- 📄 Concept Note: docs/concept_note/Concept_Note.md
+- 📄 Executive Policy Brief: docs/policy_brief/Policy_Brief.md
+
+## Suggested Citation
+
+Famuyide, B. (2025). *Nigeria Renewable Energy GIS Suitability Analysis:
+Solar, Wind, and Hydropower*. GitHub repository.
 
 
 📜 License
